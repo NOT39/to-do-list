@@ -1,3 +1,5 @@
+import * as AlertDialog from '@radix-ui/react-alert-dialog'
+
 import { Trash, Check } from 'phosphor-react'
 
 import {
@@ -5,7 +7,14 @@ import {
   CheckboxIndicator,
   IndicatorContainer,
   TaskContainer,
-  TrashContainer,
+  TaskTitleContainer,
+  TrashModalOverlay,
+  TrashDialogTrigger,
+  TrashModalContent,
+  TrashModalCancelButton,
+  TrashModalConfirmButton,
+  TrashModalTitle,
+  TrashModalDescription,
 } from './styles'
 
 interface ITaskProps {
@@ -13,13 +22,28 @@ interface ITaskProps {
   title: string
   completed: boolean
 
-  handleDeleteTask: (id: string) => void
+  switchCompleteTask: (id: string) => void
+  deleteTask: (id: string) => void
 }
 
-export function Task({ id, title, completed, handleDeleteTask }: ITaskProps) {
+export function Task({
+  id,
+  title,
+  completed,
+  switchCompleteTask,
+  deleteTask,
+}: ITaskProps) {
+  function handleSwitchCompleteTask() {
+    switchCompleteTask(id)
+  }
+
+  function handleDeleteTask() {
+    deleteTask(id)
+  }
+
   return (
     <TaskContainer>
-      <CheckboxContainer checked={completed}>
+      <CheckboxContainer checked={completed} onClick={handleSwitchCompleteTask}>
         <IndicatorContainer>
           <CheckboxIndicator asChild>
             <Check weight="bold" />
@@ -27,11 +51,33 @@ export function Task({ id, title, completed, handleDeleteTask }: ITaskProps) {
         </IndicatorContainer>
       </CheckboxContainer>
 
-      <p>{title}</p>
+      <TaskTitleContainer completed={completed}>{title}</TaskTitleContainer>
 
-      <TrashContainer>
-        <Trash />
-      </TrashContainer>
+      <AlertDialog.Root>
+        <TrashDialogTrigger>
+          <Trash />
+        </TrashDialogTrigger>
+        <AlertDialog.Portal>
+          <TrashModalOverlay />
+
+          <TrashModalContent>
+            <TrashModalTitle>
+              Você tem certeza que deseja deletar essa tarefa?
+            </TrashModalTitle>
+            <TrashModalDescription>
+              Essa ação não pode ser desfeita. Isto irá deletar permanentemente
+              a tarefa selecionada.
+            </TrashModalDescription>
+            <div>
+              <TrashModalCancelButton>Cancelar</TrashModalCancelButton>
+
+              <TrashModalConfirmButton onClick={handleDeleteTask}>
+                Sim, deletar a tarefa
+              </TrashModalConfirmButton>
+            </div>
+          </TrashModalContent>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
     </TaskContainer>
   )
 }

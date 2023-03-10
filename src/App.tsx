@@ -38,7 +38,7 @@ export function App() {
   useEffect(() => {
     const abortController = new AbortController()
 
-    fetch('https://jsonplaceholder.typicode.com/todos', {
+    fetch('https://jsonplaceholder.typicode.com/todos/', {
       signal: abortController.signal,
     })
       .then((response) => response.json())
@@ -49,12 +49,12 @@ export function App() {
 
   function createNewTask(data: NewTaskFormData) {
     setTasks((prevTasks) => [
-      ...prevTasks,
       {
         title: data.title,
         id: String(new Date()),
         completed: false,
       },
+      ...prevTasks,
     ])
 
     reset()
@@ -62,6 +62,14 @@ export function App() {
 
   function deleteTask(id: string) {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id))
+  }
+
+  function switchCompleteTask(id: string) {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task,
+      ),
+    )
   }
 
   const newTaskForm = useForm<NewTaskFormData>({
@@ -108,7 +116,8 @@ export function App() {
                 id={task.id}
                 title={task.title}
                 completed={task.completed}
-                handleDeleteTask={deleteTask}
+                deleteTask={deleteTask}
+                switchCompleteTask={switchCompleteTask}
               />
             ))
           )}
